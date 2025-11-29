@@ -9,12 +9,6 @@ namespace Nagradni_Zadatak_4.MergeSort
 {
     public class MergeSort
     {
-        public static int[] array;
-
-        public MergeSort(int[] array)
-        {
-            MergeSort.array = array;
-        }
         public static void MergeSortSingleThread(int[] array, int low, int high)
         {
             if(low >= high) return;
