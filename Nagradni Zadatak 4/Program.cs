@@ -12,11 +12,12 @@ namespace Nagradni_Zadatak_4.QuickSort
             List<IExample> examples = new List<IExample>()
             {
                 new MergeSortExample(),
+                new MergeSortMultiThreadedExample()
             };
-            foreach (IExample example in examples)
-            {
+            foreach (IExample example in examples) {
                 example.Run();
             }
+
         }
     }
 }

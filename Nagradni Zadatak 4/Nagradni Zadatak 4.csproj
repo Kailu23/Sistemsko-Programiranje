@@ -46,6 +46,7 @@
     <Compile Include="MergeSort\MergeSort.cs" />
     <Compile Include="MergeSort\MergeSortExample.cs" />
     <Compile Include="MergeSort\MergeSortMultiThreaded.cs" />
+    <Compile Include="MergeSort\MergeSortMultiThreadedExample.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="QuickSort\QuickSort.cs" />
