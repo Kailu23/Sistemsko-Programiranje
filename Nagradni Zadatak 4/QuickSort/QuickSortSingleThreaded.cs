@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Nagradni_Zadatak_4.QuickSort
 {
-    public class QuickSort
+    public class QuickSortSingleThreaded
     {
     }
 }
