@@ -12,21 +12,26 @@ namespace Nagradni_Zadatak_4.MergeSort
     public class MergeSortMultiThreaded
     {
         private static int part = 0;
-        public static int numberOfThreads;
+        private static int numberOfThreads;
+        private static int[] numbers;
         private static readonly object _locker = new object();
         public static void MultiMergeSort(int[] array) {
+            int high, low;
             lock (_locker) {
-            Interlocked.Increment(ref part);
-            int  segmentSize = (int)Math.Round((double)array.Length / MergeSortMultiThreaded.numberOfThreads);
-            int high = (segmentSize * part) - 1;
-            int low = high - segmentSize + 1;
-            if (high >= array.Length) 
-                    high = array.Length - 1;
-            MergeSortSegments(array, low, high);
+                if (numberOfThreads > array.Length) {
+                    numberOfThreads = array.Length;
+                }
+                Interlocked.Increment(ref part);
+                int  segmentSize = (int)Math.Ceiling((double)array.Length / MergeSortMultiThreaded.numberOfThreads);
+                high = (segmentSize * part) - 1;
+                low = high - segmentSize + 1;
+                if (high >= array.Length)
+                        high = array.Length - 1;
             }
+            MergeSortSegments(array, low, high);
         }
 
-        public static void MergeSortSegments(int[] array, int low, int high) {
+        private static void MergeSortSegments(int[] array, int low, int high) {
             if (low >= high) return;
 
             int middle = (low + high) / 2;
@@ -36,7 +41,7 @@ namespace Nagradni_Zadatak_4.MergeSort
             Merge(array, low, high);
 
         }
-        public static void Merge(int[] array, int low, int high) {
+        private static void Merge(int[] array, int low, int high) {
             int[] sortArray = new int[high - low + 1];
             int middle = (low + high) / 2;
             int leftIndex = low; int rightIndex = middle + 1;
@@ -65,6 +70,14 @@ namespace Nagradni_Zadatak_4.MergeSort
             set {
                 part = value;
             }
+        }
+        public static int[] Numbers {
+            get => numbers;
+            set => numbers = value;
+        }
+        public static int NumberOfThreads {
+            get => numberOfThreads;
+            set => numberOfThreads = value;
         }
     }
 }

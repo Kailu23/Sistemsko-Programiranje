@@ -14,6 +14,7 @@ namespace Nagradni_Zadatak_4.MergeSort {
 
             for (int i = 0; i < numberOfThreads; i++) {
                 int[] numbers = new int[] { 38, 27, 43, 3, 9, 82, 10 };
+                MergeSortMultiThreaded.Numbers = numbers;
                 Console.WriteLine("Numbers:");
                 foreach (int number in numbers) {
                     Console.Write(number + " ");
@@ -22,7 +23,7 @@ namespace Nagradni_Zadatak_4.MergeSort {
                 Console.WriteLine("i: " + i);
                 int n = i + 1;
                 while (n > 1) {
-                    MergeSortMultiThreaded.numberOfThreads = n;
+                    MergeSortMultiThreaded.NumberOfThreads = n;
                     for (int j = 0; j < n; j++) {
                         Console.WriteLine("j: " + j);
                         threads[j] = new Thread(() => MergeSortMultiThreaded.MultiMergeSort(numbers));
@@ -48,8 +49,8 @@ namespace Nagradni_Zadatak_4.MergeSort {
                     n = (int)Math.Round((double)n / 2);
                     MergeSortMultiThreaded.Part = 0;
                 }
-
-                MergeSort.MergeSortSingleThread(numbers, 0, numbers.Length - 1);
+                MergeSort.numbers = numbers;
+                MergeSort.MergeSortSingleThread(0, numbers.Length - 1);
                 Console.Write("Sorted numbers:\n");
                 foreach (int number in numbers) {
                     Console.Write(number + " ");

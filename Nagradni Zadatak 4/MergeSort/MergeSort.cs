@@ -9,49 +9,50 @@ namespace Nagradni_Zadatak_4.MergeSort
 {
     public class MergeSort
     {
-        public static void MergeSortSingleThread(int[] array, int low, int high)
+        public static int[] numbers;
+        public static void MergeSortSingleThread(int low, int high)
         {
             if(low >= high) return;
 
             int middle = (low + high) / 2;
 
-            MergeSortSingleThread(array, low, middle);
-            MergeSortSingleThread(array, middle + 1, high);
-            Merge(array, low, high);
+            MergeSortSingleThread(low, middle);
+            MergeSortSingleThread(middle + 1, high);
+            Merge(low, high);
         }
-        public static void Merge(int[] array, int low, int high)
+        public static void Merge(int low, int high)
         {
-            int[] sortArray = new int[high - low + 1];
+            int[] sortedNumbers = new int[high - low + 1];
             int middle = (low + high) / 2;
             int leftIndex = low; int rightIndex = middle + 1;
             for (int i = 0; i <= high - low; i++)
             {
                 if (leftIndex <= middle && rightIndex <= high)
                 {
-                    if (array[leftIndex] < array[rightIndex])
+                    if (numbers[leftIndex] < numbers[rightIndex])
                     {
-                        sortArray[i] = array[leftIndex++];
+                        sortedNumbers[i] = numbers[leftIndex++];
                     }
                     else
                     {
-                        sortArray[i] = array[rightIndex++];
+                        sortedNumbers[i] = numbers[rightIndex++];
                     }
                 }
                 else
                 {
                     if (leftIndex > middle)
                     {
-                        sortArray[i] = array[rightIndex++];;
+                        sortedNumbers[i] = numbers[rightIndex++];;
                     }
                     else
                     {
-                        sortArray[i] = array[leftIndex++];
+                        sortedNumbers[i] = numbers[leftIndex++];
                     }
                 }
             }
             for (int i = low; i <= high; i++)
             {
-                array[i] = sortArray[i - low];
+                numbers[i] = sortedNumbers[i - low];
             }
         }
     }

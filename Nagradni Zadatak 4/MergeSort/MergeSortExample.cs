@@ -7,13 +7,13 @@ using System.Threading.Tasks;
 
 namespace Nagradni_Zadatak_4.MergeSort
 {
-    class MergeSortExample : IExample
+    public class MergeSortExample : IExample
     {
         public void Run()
         {
             int[] numbers = new int[] { 38, 27, 43, 3, 9, 82, 10 };
-
-            MergeSort.MergeSortSingleThread(numbers, 0, numbers.Length - 1);
+            MergeSort.numbers = numbers;
+            MergeSort.MergeSortSingleThread(0, numbers.Length - 1);
             Console.WriteLine("Sorted array:");
             for (int i = 0; i < numbers.Length; i++)
             {
