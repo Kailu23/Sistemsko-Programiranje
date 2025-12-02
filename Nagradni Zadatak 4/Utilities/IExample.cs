@@ -6,8 +6,13 @@ using System.Threading.Tasks;
 
 namespace Nagradni_Zadatak_4.Utilities
 {
-    public interface IExample
-    {
+    public interface IExample {
+        System.String Name { get {
+                return this.ToString();
+            }
+}
+
+
         void Run();
     }
 }
