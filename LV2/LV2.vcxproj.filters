@@ -1,10 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="LV2-2.c" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="UnixLV2.h" />
     <ClInclude Include="WindowsLV2.h" />
+    <ClInclude Include="Header Files\UnixLV2.h" />
+    <ClInclude Include="Header Files\WindowsLV2.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source Files\main.c" />
   </ItemGroup>
 </Project>
