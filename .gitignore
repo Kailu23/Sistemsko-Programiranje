@@ -418,3 +418,12 @@ FodyWeavers.xsd
 *.msp
 
 s.cs
+
+*pthread*.*
+romana.c
+sched.h
+semaphore.h
+sha512.sum
+md5.sum
+*.o
+LV3
