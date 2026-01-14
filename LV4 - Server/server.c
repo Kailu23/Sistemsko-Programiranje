@@ -9,19 +9,19 @@
 #define MAX_CLIENTS 4
 
 int main(int argc, char* argv[]) {
-	WSADATA data;
+	WSADATA wsa;
 	SOCKET serverSocket, clientSockets[MAX_CLIENTS];
 	struct sockaddr_in serverAddress;
 	char buffer[BUFFER_SIZE];
-	int clientCount = 0, bytesReceived;
+	int clientCount = 0, bytes;
 
-	WSAStartup(MAKEWORD(2, 2), &data);
+	WSAStartup(MAKEWORD(2, 2), &wsa);
 
 	serverSocket = socket(AF_INET, SOCK_STREAM, 0);
 	serverAddress.sin_family = AF_INET;
 	serverAddress.sin_port = htons(PORT);
 	serverAddress.sin_addr.s_addr = INADDR_ANY;
-	bind(serverSocket, &serverAddress, sizeof(serverAddress));
+	bind(serverSocket, (struct sockaddr*)&serverAddress, sizeof(serverAddress));
 	listen(serverSocket, MAX_CLIENTS);
 
 	printf("Server started\n");
@@ -31,13 +31,13 @@ int main(int argc, char* argv[]) {
 		if (clientSockets[clientCount] == INVALID_SOCKET) {
 			continue;
 		}
-		bytesReceived = recv(clientSockets[clientCount], buffer, BUFFER_SIZE - 1, 0);
-		if (bytesReceived <= 0) {
+		bytes = recv(clientSockets[clientCount], buffer, BUFFER_SIZE - 1, 0);
+		if (bytes <= 0) {
 			closesocket(clientSockets[clientCount]);
 			continue;
 		}
 
-		buffer[bytesReceived] = '\0';
+		buffer[bytes] = '\0';
 		printf("Client %d\nMessage %s\n", clientCount + 1, buffer);
 
 		char message[3];
@@ -48,22 +48,20 @@ int main(int argc, char* argv[]) {
 
 		clientCount++;
 	}
+	
+    for (int i = 0; i < MAX_CLIENTS; i++)
+        send(clientSockets[i], "P", 1, 0);
 
-	for (int i = 0; i < MAX_CLIENTS; i++) {
-		send(clientSockets[i], 'P', 1, 0);
-	}
+    for (int i = 0; i < MAX_CLIENTS; i++) {
+        bytes = recv(clientSockets[i], buffer, BUFFER_SIZE - 1, 0);
+        if (bytes > 0) {
+            buffer[bytes] = '\0';
+            printf("Od klijenta %d: %s\n", i + 1, buffer);
+        }
+        closesocket(clientSockets[i]);
+    }
 
-	for (int i = 0; i < MAX_CLIENTS; i++) {
-		bytesReceived = recv(clientSockets[i], buffer, BUFFER_SIZE - 1, 0);
-		if (bytesReceived > 0) {
-			buffer[bytesReceived] = '\0';
-			printf("From client %d\nMessage %s\n", i + 1, buffer);
-		}
-		closesocket(clientSockets[i]);
-	}
-
-	closesocket(serverSocket);
-	WSACleanup();
-
-	return 0;
+    closesocket(serverSocket);
+    WSACleanup();
+    return 0;
 }
