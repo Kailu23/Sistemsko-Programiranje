@@ -1,3 +1,4 @@
+#define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -27,7 +28,7 @@ typedef struct _StringAggregate {
 	char* max;
 } StringAggregate;
 
-int parseLine(char* line, char* columns[], int maxColumns) {
+int SplitCsvLine(char* line, char* columns[], int maxColumns) {
 	int numberOfColumns = 0;
 	char* token = strtok(line, ",");
 	while (token && numberOfColumns < MAX_COLS) {
@@ -60,7 +61,7 @@ StringFrequency* stringFindOrAdd(StringAggregate* aggregate, const char* string)
 			exit(1);
 		}
 	}
-	aggregate->items[aggregate->size].value = strdup(string);
+	aggregate->items[aggregate->size].value = _strdup(string);
 	aggregate->items[aggregate->size].frequency = 0;
 	aggregate->size++;
 	return &aggregate->items[aggregate->size - 1];
@@ -72,11 +73,11 @@ void stringAdd(StringAggregate* aggregate, const char* string) {
 
 	if (!aggregate->min || strcmp(string, aggregate->min) < 0) {
 		free(aggregate->min);
-		aggregate->min = strdup(string);
+		aggregate->min = _strdup(string);
 	}
 	if (!aggregate->max || strcmp(string, aggregate->max) > 0) {
 		free(aggregate->max);
-		aggregate->max = strdup(string);
+		aggregate->max = _strdup(string);
 	}
 }
 
@@ -89,9 +90,9 @@ void processAllLines(char** lines, int numberOfLines, int numberOfColumns, int i
 		strcpy(tmp, lines[i]);
 		tmp[strcspn(tmp, "\r\n")] = '\0';
 		char* fileColumns[MAX_COLS];
-		int rowColumns = parseLine(tmp, fileColumns, MAX_COLS);
+		int columnCount = SplitCsvLine(tmp, fileColumns, MAX_COLS);
 
-		for (int c = 0; c < numberOfColumns && c < rowColumns; ++c) {
+		for (int c = 0; c < numberOfColumns && c < columnCount; ++c) {
 			if (isNumericColumn[c]) {
 				double value;
 				if (!isNumber(fileColumns[c], &value)) {
@@ -176,14 +177,14 @@ int main(void) {
 
 			if (!lines) {
 				fprintf(stderr, "Memory error at realloc\n");
-				return -1;
+				return -2;
 			}
 		}
 
-		lines[numberOfLines] = stdup(line);
+		lines[numberOfLines] = _strdup(line);
 		if (!lines[numberOfLines]) {
-			fprintf(stderr, "Memory error at stdup line\n");
-			return -1;
+			fprintf(stderr, "Memory error at strdup line\n");
+			return -2;
 		}
 		numberOfLines++;
 	}
@@ -196,7 +197,7 @@ int main(void) {
 	strcpy(tmp, lines[0]);
 	tmp[strcspn(tmp, "\r\n")] = '\0';
 	char* columns[MAX_COLS];
-	int numberOfColumns = parseLine(tmp, columns, MAX_COLS);
+	int numberOfColumns = SplitCsvLine(tmp, columns, MAX_COLS);
 
 	int isNumericColumn[MAX_COLS] = { 0 };
 	NumberAggregate numberAggregate[MAX_COLS];

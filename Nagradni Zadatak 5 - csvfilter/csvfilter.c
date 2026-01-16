@@ -1,3 +1,4 @@
+#define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -21,12 +22,12 @@ typedef struct {
 int isNumber(const char* string, double* out) {
 	char* end;
 	double value = strtod(string, &end);
-	if (*string == '\0' || end != '\0') return 0;
+	if (*string == '\0' || *end != '\0') return 0;
 	if (out) *out = value;
 	return 1;
 }
 
-OperationType parseOperation(const char input) {
+OperationType parseOperation(const char *input) {
 	if (strcmp(input, "-L") == 0) return L;
 	if (strcmp(input, "-G") == 0) return G;
 	if (strcmp(input, "-E") == 0) return E;
@@ -36,7 +37,7 @@ OperationType parseOperation(const char input) {
 	fprintf(stderr, "Uknown operation: %s\n", input);
 	exit(1);
 }
-
+ 
 int main(int argc, char* argv[]) {
 	if (argc < 2) {
 		fprintf(stderr, "Usage: %s *.csv [-Operation -column -value], Operation: L, G, E, LE, GE, NE\n", argv[0]);
@@ -44,6 +45,7 @@ int main(int argc, char* argv[]) {
 	}
 
 	const char* filename = argv[1];
+	//const char* filename = "example.csv";
 
 	Condition conditions[MAX_COND];
 	int numberOfConditions = 0;
@@ -67,7 +69,7 @@ int main(int argc, char* argv[]) {
 		}
 		else {
 			conditions[numberOfConditions].type = STRING;
-			conditions[numberOfConditions].string = strdup(value);
+			conditions[numberOfConditions].string = _strdup(value);
 		}
 		numberOfConditions++;
 		i += 3;
@@ -82,10 +84,10 @@ int main(int argc, char* argv[]) {
 	char line[MAX_LINE];
 
 	while (fgets(line, sizeof(line), filePointer)) {
-		char* original[MAX_LINE];
+		char original[MAX_LINE];
 		strcpy(original, line);
 
-		line[strcspn(line, "\r\n")] == '\0';
+		line[strcspn(line, "\r\n")] = '\0';
 
 		char* columns[MAX_COLS];
 		unsigned int numberOfColumns = 0;
@@ -142,6 +144,7 @@ int main(int argc, char* argv[]) {
 		}
 
 		if (pass) {
+			//puts(original);
 			fputs(original, stdout);
 		}
 	}
