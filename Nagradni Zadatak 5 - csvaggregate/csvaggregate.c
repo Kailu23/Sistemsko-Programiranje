@@ -31,7 +31,7 @@ typedef struct _StringAggregate {
 int SplitCsvLine(char* line, char* columns[], int maxColumns) {
 	int numberOfColumns = 0;
 	char* token = strtok(line, ",");
-	while (token && numberOfColumns < MAX_COLS) {
+	while (token && numberOfColumns < maxColumns) {
 		columns[numberOfColumns++] = token;
 		token = strtok(NULL, ",");
 	}
@@ -108,7 +108,7 @@ void processAllLines(char** lines, int numberOfLines, int numberOfColumns, int i
 				numberAggregate[c].count++;
 			}
 			else {
-				stringAdd(&numberAggregate[c], fileColumns[c]);
+				stringAdd(&stringAggregate[c], fileColumns[c]);
 			}
 		}
 	}
@@ -129,22 +129,22 @@ void printAverageOrModeLine(int numberOfColumns, int isNumericColumn[], NumberAg
 					if (stringAggregate[c].items[k].frequency > best->frequency) {
 						best = &stringAggregate[c].items[k];
 					}
-					printf("%s(%ld)", best->value, best->frequency);
 				}
+					printf("%s(%ld)", best->value, best->frequency);
 			}
-			if (c < numberOfColumns - 1) printf(",");
 		}
-		printf("\n");
+		if (c < numberOfColumns - 1) printf(",");
 	}
+	printf("\n");
 }
 
 void printMinLine(int numberOfColumns, int isNumericColumn[], NumberAggregate numberAggregate[], StringAggregate stringAggregate[]) {
 	for (int c = 0; c < numberOfColumns; ++c) {
 		if (isNumericColumn[c]) {
-			printf("%.6f", numberAggregate[c].min);
+			printf("%.4lf", numberAggregate[c].min);
 		}
 		else {
-			if (stringAggregate[c].min) printf("%s", stringAggregate->min);
+			if (stringAggregate[c].min) printf("%s", stringAggregate[c].min);
 		}
 		if (c < numberOfColumns - 1) printf(",");
 	}
@@ -154,10 +154,10 @@ void printMinLine(int numberOfColumns, int isNumericColumn[], NumberAggregate nu
 void printMaxLine(int numberOfColumns, int isNumericColumn[], NumberAggregate numberAggregate[], StringAggregate stringAggregate[]) {
 	for (int c = 0; c < numberOfColumns; ++c) {
 		if (isNumericColumn[c]) {
-			printf("%.6f", numberAggregate[c].max);
+			printf("%.4lf", numberAggregate[c].max);
 		}
 		else {
-			if (stringAggregate[c].max) printf("%s", stringAggregate->max);
+			if (stringAggregate[c].max) printf("%s", stringAggregate[c].max);
 		}
 		if (c < numberOfColumns - 1) printf(",");
 	}
@@ -173,7 +173,7 @@ int main(void) {
 	while (fgets(line, sizeof(line), stdin)) {
 		if (linesCapacity == numberOfLines) {
 			linesCapacity = linesCapacity ? linesCapacity * 2 : 16;
-			lines = (char**)realloc(lines, sizeof(char*));
+			lines = (char**)realloc(lines, linesCapacity * sizeof(char*));
 
 			if (!lines) {
 				fprintf(stderr, "Memory error at realloc\n");
