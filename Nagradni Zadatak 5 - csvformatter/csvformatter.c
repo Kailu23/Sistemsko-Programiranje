@@ -6,10 +6,18 @@
 #define MAX_LINE 4096
 #define MAX_COLS 256
 
+int isNumber(const char* string, double* out) {
+	char* end;
+	double value = strtod(string, &end);
+	if (*string == '\0' || *end != '\0') return 0;
+	if (out) *out = value;
+	return 1;
+}
+
 int SplitCsvLine(char* line, char* columns[], int maxColumns) {
 	int numberOfColumns = 0;
 	char* token = strtok(line, ",");
-	while (token && numberOfColumns < MAX_COLS) {
+	while (token && numberOfColumns < maxColumns) {
 		columns[numberOfColumns++] = token;
 		token = strtok(NULL, ",");
 	}
@@ -58,7 +66,7 @@ int getColumnCountAndAggregateRows(char** lines, int totalLines, int* outDataLin
 	if (dataLines > 0) {
 		strcpy(tmp, lines[0]);
 		tmp[strcspn(tmp, "\r\n")] = '\0';
-		numberOfColumns = SplitCsvLine(tmp, numberOfColumns, MAX_COLS);
+		numberOfColumns = SplitCsvLine(tmp, columns, MAX_COLS);
 	}
 	else {
 		strcpy(tmp, *outAverageLine);
@@ -70,19 +78,14 @@ int getColumnCountAndAggregateRows(char** lines, int totalLines, int* outDataLin
 }
 
 void SplitAggregateRows(char* averageLine, char* minLine, char* maxLine, char* averageColumns[], char* minColumns[], char* maxColumns[]) {
-	char tmp[MAX_LINE];
 
-	strcpy(tmp, averageLine);
-	tmp[strcspn(tmp, "\r\n")] = '\0';
-	SplitCsvLine(tmp, averageColumns, MAX_COLS);
+	averageLine[strcspn(averageLine, "\r\n")] = '\0';
+	minLine[strcspn(minLine, "\r\n")] = '\0';
+	maxLine[strcspn(maxLine, "\r\n")] = '\0';
 
-	strcpy(tmp, minLine);
-	tmp[strcspn(tmp, "\r\n")] = '\0';
-	SplitCsvLine(tmp, minColumns, MAX_COLS);
-
-	strcpy(tmp, maxLine);
-	tmp[strcspn(tmp, "\r\n")] = '\0';
-	SplitCsvLine(tmp, maxColumns, MAX_COLS);
+	SplitCsvLine(averageLine, averageColumns, MAX_COLS);
+	SplitCsvLine(minLine, minColumns, MAX_COLS);
+	SplitCsvLine(maxLine, maxColumns, MAX_COLS);
 }
 
 void PrintJSONData(char** lines, int dataLines, int totalColumns) {
@@ -98,7 +101,15 @@ void PrintJSONData(char** lines, int dataLines, int totalColumns) {
 
 		printf("\t\t{");
 		for (int c = 0; c < totalColumns && c < totalDataColumns; c++) {
-			printf("\"Column%d\": \"%s\"", c + 1, dataColumns[c]);
+			char* string = dataColumns[c];
+			double number;
+			if (isNumber(string, &number)) {
+				printf("\"Column%d\": %.4lf", c + 1, number);
+			}
+			else {
+				printf("\"Column%d\": \"%s\"", c + 1, string);
+			}
+
 			if (c < totalColumns - 1) printf(", ");
 		}
 		printf("}");
@@ -109,22 +120,62 @@ void PrintJSONData(char** lines, int dataLines, int totalColumns) {
 }
 
 void PrintJSONAggregate(int totalColumns, char* averageColumns[], char* minColumns[], char* maxColumns[]) {
-	printf("\t\"Aggregates\": {\n");
-	for (int c = 0; c < totalColumns; c++) {
-		const char* averageValue = (c < totalColumns) ? averageColumns[c] : "";
-		const char* minValue = (c < totalColumns) ? minColumns[c] : "";
-		const char* maxValue = (c < totalColumns) ? maxColumns[c] : "";
+	char* averageValue;
+	char* minValue;
+	char* maxValue;
 
-		printf("\t\"Column%d\": { \"average_or_most_frequent\": \"%s\", \"minimum\": \"%s\", \"maximum\": \"%s\" }", c + 1, averageValue, minValue, maxValue);
-		if (c < totalColumns) printf(",");
-		printf("\n");
+	printf("\t\"Aggregates\": {\n");
+
+	printf("\t\t\"average_or_most_frequent\": \n\t\t\t{");
+	for (int c = 0; c < totalColumns; c++) {
+		averageValue = averageColumns[c] ? averageColumns[c] : "";
+
+		double number;
+		if (isNumber(averageValue, &number)) {
+			printf("\"Column%d\": %lf", c + 1, number);
+		}
+		else {
+			printf("\"Column%d\": \"%s\"", c + 1, averageValue);
+		}
+		if (c < totalColumns - 1) printf(", ");
 	}
+	printf("},\n");
+
+	printf("\t\t\"minimum\": \n\t\t\t{");
+	for (int c = 0; c < totalColumns; c++) {
+		minValue = minColumns[c] ? minColumns[c] : "";
+
+		double number;
+		if (isNumber(minValue, &number)) {
+			printf("\"Column%d\": %lf", c + 1, number);
+		}
+		else {
+			printf("\"Column%d\": \"%s\"", c + 1, minValue);
+		}
+		if (c < totalColumns - 1) printf(", ");
+	}
+	printf("},\n");
+
+	printf("\t\t\"maximum\": \n\t\t\t{");
+	for (int c = 0; c < totalColumns; c++) {
+		maxValue = maxColumns[c] ? maxColumns[c] : "";
+
+		double number;
+		if (isNumber(maxValue, &number)) {
+			printf("\"Column%d\": %lf", c + 1, number);
+		}
+		else {
+			printf("\"Column%d\": \"%s\"", c + 1, maxValue);
+		}
+		if (c < totalColumns - 1) printf(", ");
+	}
+	printf("}\n");
+
 	printf("\t}\n");
 }
 
 
 int main(void) {
-	printf("\t\"Data\": [\n");
 	char** lines = NULL;
 	unsigned int totalLines = readInputLines(&lines);
 	if (totalLines < 0) {;
@@ -132,7 +183,7 @@ int main(void) {
 	}
 
 	if (totalLines < 3) {
-		for (int i = 0; i < totalLines; i++) free(lines[i]);
+		for (unsigned int i = 0; i < totalLines; i++) free(lines[i]);
 		free(lines);
 		return -3;
 	}
@@ -145,7 +196,7 @@ int main(void) {
 	int totalColumns = getColumnCountAndAggregateRows(lines, totalLines, &dataLines, &averageLine, &minLine, &maxLine);
 
 	if (totalColumns <= 0) {
-		for (int i = 0; i < totalLines; i++) free(lines[i]);
+		for (unsigned int i = 0; i < totalLines; i++) free(lines[i]);
 		free(lines);
 		return 0;
 	}
@@ -160,7 +211,7 @@ int main(void) {
 	PrintJSONAggregate(totalColumns, averageColumns, minColumns, maxColumns);
 	printf("}\n");
 
-	for (int i = 0; i < totalLines; i++) free(lines[i]);
+	for (unsigned int i = 0; i < totalLines; i++) free(lines[i]);
 	free(lines);
 	return 0;
 }
