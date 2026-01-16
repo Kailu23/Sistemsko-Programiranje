@@ -15,7 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="csvfilter.c">
+    <ClCompile Include="csvaggregate.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
